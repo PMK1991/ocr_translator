@@ -1,7 +1,8 @@
 import argparse
 import concurrent.futures
 import importlib
-from typing import Optional, Tuple, Any
+import os
+from typing import Tuple, Any
 from dotenv import load_dotenv
 
 # Local Imports
@@ -13,10 +14,10 @@ load_dotenv()
 
 # Constants
 ENGINE_MAP = {
-    'google': {'ocr': 'src.google_cloud_ocr', 'agents': 'src.google_cloud_agents'},
-    'ollama': {'ocr': 'src.ollama_sdk_ocr', 'agents': 'src.ollama_sdk_agents'},
-    'deepseek': {'ocr': 'src.deepseek_local_ocr', 'agents': 'src.deepseek_local_agents'},
-    'azure': {'ocr': 'src.azure_ocr', 'agents': 'src.azure_agents'},
+    'google': {'ocr': 'src.engines.google.ocr', 'agents': 'src.engines.google.agents'},
+    'ollama': {'ocr': 'src.engines.ollama.ocr', 'agents': 'src.engines.ollama.agents'},
+    'deepseek': {'ocr': 'src.engines.deepseek.ocr', 'agents': 'src.engines.deepseek.agents'},
+    'azure': {'ocr': 'src.engines.azure.ocr', 'agents': 'src.engines.azure.agents'},
 }
 
 SUFFIX_MAP = {
@@ -109,7 +110,7 @@ def main():
     with concurrent.futures.ThreadPoolExecutor(max_workers=DEFAULT_WORKERS) as executor:
         future_to_page = {executor.submit(process_page, ocr_engine, page_data, i+1): i for i, page_data in enumerate(pages)}
         
-        results = [None] * len(pages)
+        results: list[str] = [""] * len(pages)
         for future in concurrent.futures.as_completed(future_to_page):
             page_idx = future_to_page[future]
             results[page_idx] = future.result()

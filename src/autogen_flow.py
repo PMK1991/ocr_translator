@@ -1,14 +1,12 @@
 import os
 import asyncio
 import importlib
-from typing import List, Optional, Any
 from autogen_agentchat.agents import AssistantAgent
 from autogen_agentchat.teams import RoundRobinGroupChat
 from autogen_agentchat.conditions import TextMentionTermination
 from autogen_agentchat.ui import Console
-from autogen_agentchat.messages import TextMessage
 from autogen_ext.models.openai import AzureOpenAIChatCompletionClient
-from autogen_core.models import UserMessage, ModelInfo, ModelFamily, ChatCompletionClient, CreateResult, LLMMessage, SystemMessage, UserMessage, AssistantMessage, ModelCapabilities, RequestUsage
+from autogen_core.models import ModelInfo, ModelFamily
 from src.docx_saver import save_markdown_to_docx
 from src.input_handler import load_document
 
@@ -161,13 +159,13 @@ async def perform_ocr(filepath: str, engine_name: str) -> str:
     # Determine module based on engine name
     mod_name = None
     if 'azure' in engine_name:
-        mod_name = 'src.azure_ocr'
+        mod_name = 'src.engines.azure.ocr'
     elif 'deepseek' in engine_name:
-        mod_name = 'src.deepseek_local_ocr'
+        mod_name = 'src.engines.deepseek.ocr'
     elif 'ollama' in engine_name:
-        mod_name = 'src.ollama_sdk_ocr'
+        mod_name = 'src.engines.ollama.ocr'
     else:
-        mod_name = 'src.google_cloud_ocr'
+        mod_name = 'src.engines.google.ocr'
             
     try:
         mod = importlib.import_module(mod_name)
@@ -223,7 +221,7 @@ async def save_document(content: str, filename_base: str) -> str:
 
 
 # --- Google GenAI Client Adapter ---
-from src.google_cloud_agents import GoogleGenAIClient
+from src.engines.google.agents import GoogleGenAIClient
 
 # --- Orchestrator ---
 class AutoGenOrchestrator:
