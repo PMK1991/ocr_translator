@@ -138,14 +138,17 @@ def main():
 
     base_name = os.path.splitext(os.path.basename(file_path))[0]
     suffix = SUFFIX_MAP.get(args.engine, f"_{args.engine}")
-    
+
+    out_dir = os.path.join("output", args.engine)
+    os.makedirs(out_dir, exist_ok=True)
+
     # Save Text
-    out_txt = f"{base_name}{suffix}_refined.txt"
+    out_txt = os.path.join(out_dir, f"{base_name}{suffix}_refined.txt")
     with open(out_txt, "w", encoding="utf-8") as f:
         f.write(formatted_text)
-        
+
     # Save Docx (Translated)
-    out_docx = f"{base_name}{suffix}_refined.docx"
+    out_docx = os.path.join(out_dir, f"{base_name}{suffix}_refined.docx")
     try:
         save_markdown_to_docx(formatted_text, out_docx)
         print(f"\nSUCCESS: Output saved to:\n  - {out_txt}\n  - {out_docx}")
@@ -157,11 +160,11 @@ def main():
     try:
         if hasattr(agent_manager, 'format_text'):
             original_structured = agent_manager.format_text(full_transcription)
-            out_orig_docx = f"{base_name}{suffix}_original.docx"
+            out_orig_docx = os.path.join(out_dir, f"{base_name}{suffix}_original.docx")
             save_markdown_to_docx(original_structured, out_orig_docx)
             print(f"  - {out_orig_docx}")
         else:
-            out_orig_txt = f"{base_name}{suffix}_original.txt"
+            out_orig_txt = os.path.join(out_dir, f"{base_name}{suffix}_original.txt")
             with open(out_orig_txt, "w", encoding="utf-8") as f:
                 f.write(full_transcription)
             print(f"  - {out_orig_txt} (Raw text only)")

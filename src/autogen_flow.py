@@ -209,9 +209,11 @@ async def perform_ocr(filepath: str, engine_name: str) -> str:
     return result
 
 
-async def save_document(content: str, filename_base: str) -> str:
-    """Saves translated text to a DOCX file."""
-    path = filename_base + "_autogen.docx"
+async def save_document(content: str, filename_base: str, engine_name: str = "google") -> str:
+    """Saves translated text to a DOCX file under output/<engine_name>/."""
+    out_dir = os.path.join("output", engine_name)
+    os.makedirs(out_dir, exist_ok=True)
+    path = os.path.join(out_dir, filename_base + "_autogen.docx")
     try:
         save_markdown_to_docx(content, path)
         print(f"[Tool] Document saved to: {path}")
@@ -268,7 +270,7 @@ class AutoGenOrchestrator:
             task_prompt = (
                 f"Process the file: '{self.file_path}'.\n"
                 f"Engine for OCR (if needed): '{self.engine_name}'.\n"
-                f"Save output as: '{base_name}'.\n\n"
+                f"Save output as filename_base='{base_name}' and engine_name='{self.engine_name}'.\n\n"
                 f"Follow the steps in your instructions to analyze, extract, translate, and save."
             )
 
@@ -292,7 +294,7 @@ class AutoGenOrchestrator:
                 )
             )
             print(f"AutoGen: Using Azure Client ({AZURE_DEPLOYMENT}) - FULL AGENTIC MODE")
-            
+
             # Create Agent WITH all agentic tools
             participant = AssistantAgent(
                 name="Processor_Agent",
@@ -304,7 +306,7 @@ class AutoGenOrchestrator:
             task_prompt = (
                 f"Process the file: '{self.file_path}'.\n"
                 f"Engine for OCR (if needed): '{self.engine_name}'.\n"
-                f"Save output as: '{base_name}'.\n\n"
+                f"Save output as filename_base='{base_name}' and engine_name='{self.engine_name}'.\n\n"
                 f"Follow the steps in your instructions to analyze, extract, translate, and save."
             )
 
